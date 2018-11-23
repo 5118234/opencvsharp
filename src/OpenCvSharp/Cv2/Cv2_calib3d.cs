@@ -2677,8 +2677,8 @@ namespace OpenCvSharp
         /// <returns></returns>
         public static Mat EstimateAffine2D(InputArray from, InputArray to,
             OutputArray inliers,  EstimateAffine2DMethod method = EstimateAffine2DMethod.Ransac,
-            double ransacReprojThreshold = 3, UInt64 maxIters = 2000,
-            double confidence = 0.99, UInt64 refineIters = 10)
+            double ransacReprojThreshold = 3, long maxIters = 2000,
+            double confidence = 0.99, long refineIters = 10)
         {
             if (from == null)
                 throw new ArgumentNullException(nameof(from));
@@ -2686,12 +2686,16 @@ namespace OpenCvSharp
                 throw new ArgumentNullException(nameof(to));
             if (inliers == null)
                 throw new ArgumentNullException(nameof(inliers));
+            if (maxIters <= 0)
+                throw new ArgumentNullException(nameof(maxIters));
+            if (refineIters <= 0)
+                throw new ArgumentNullException(nameof(refineIters));
             from.ThrowIfDisposed();
             to.ThrowIfDisposed();
             inliers.ThrowIfNotReady();
 
             IntPtr matPtr = NativeMethods.calib3d_estimateAffine2D(
-                from.CvPtr, to.CvPtr, inliers.CvPtr, (int)method, ransacReprojThreshold, maxIters, confidence, refineIters);
+                from.CvPtr, to.CvPtr, inliers.CvPtr, (int)method, ransacReprojThreshold, new IntPtr(maxIters), confidence, new IntPtr(refineIters));
             Mat ret = new Mat(matPtr);
 
             inliers.Fix();
