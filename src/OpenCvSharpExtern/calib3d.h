@@ -683,4 +683,13 @@ CVAPI(int) calib3d_estimateAffine3D(cv::_InputArray *src, cv::_InputArray *dst,
     return cv::estimateAffine3D(*src, *dst, *out, *inliers, ransacThreshold, confidence);
 }
 
+CVAPI(cv::Mat*) calib3d_estimateAffine2D(cv::_InputArray *from, cv::_InputArray *to,
+    cv::_OutputArray *inliers, int method,
+    double ransacReprojThreshold, size_t maxIters,
+    double confidence, size_t refineIters)
+{
+    cv::Mat mat = cv::estimateAffine2D(*from, *to, *inliers, method, ransacReprojThreshold, maxIters, confidence, refineIters);
+    return new cv::Mat(mat);
+}
+
 #endif

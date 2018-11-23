@@ -328,5 +328,11 @@ namespace OpenCvSharp
         [DllImport(DllExtern, CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern int calib3d_estimateAffine3D(IntPtr src, IntPtr dst,
             IntPtr outVal, IntPtr inliers, double ransacThreshold, double confidence);
+
+
+        [DllImport(DllExtern, CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern IntPtr calib3d_estimateAffine2D(IntPtr from, IntPtr to,
+            IntPtr inliers, int method, double ransacReprojThreshold, UInt64 maxIters, 
+            double confidence, UInt64 refineIters);
     }
 }

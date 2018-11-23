@@ -2662,6 +2662,45 @@ namespace OpenCvSharp
         }
 
         /// <summary>
+        /// Computes an optimal affine transformation between two 2D point sets.
+        /// </summary>
+        /// <param name="from">First input 3D point set.</param>
+        /// <param name="to">Second input 3D point set.</param>
+        /// <param name="inliers">Output vector indicating which points are inliers.</param>
+        /// <param name="method">Robust method used to compute transformation.</param>
+        /// <param name="ransacReprojThreshold">Maximum reprojection error in the RANSAC algorithm to consider a point as an inlier. Applies only to RANSAC.</param>
+        /// <param name="maxIters">The maximum number of robust method iterations.</param>
+        /// <param name="confidence">Confidence level, between 0 and 1, for the estimated transformation. 
+        /// Anything between 0.95 and 0.99 is usually good enough. Values too close to 1 can slow down the estimation significantly. 
+        /// Values lower than 0.8-0.9 can result in an incorrectly estimated transformation.</param>
+        /// <param name="refineIters">Maximum number of iterations of refining algorithm (Levenberg-Marquardt). Passing 0 will disable refining, so the output matrix will be output of robust method.</param>
+        /// <returns></returns>
+        public static Mat EstimateAffine2D(InputArray from, InputArray to,
+            OutputArray inliers,  EstimateAffine2DMethod method = EstimateAffine2DMethod.Ransac,
+            double ransacReprojThreshold = 3, UInt64 maxIters = 2000,
+            double confidence = 0.99, UInt64 refineIters = 10)
+        {
+            if (from == null)
+                throw new ArgumentNullException(nameof(from));
+            if (to == null)
+                throw new ArgumentNullException(nameof(to));
+            if (inliers == null)
+                throw new ArgumentNullException(nameof(inliers));
+            from.ThrowIfDisposed();
+            to.ThrowIfDisposed();
+            inliers.ThrowIfNotReady();
+
+            IntPtr matPtr = NativeMethods.calib3d_estimateAffine2D(
+                from.CvPtr, to.CvPtr, inliers.CvPtr, (int)method, ransacReprojThreshold, maxIters, confidence, refineIters);
+            Mat ret = new Mat(matPtr);
+
+            inliers.Fix();
+            GC.KeepAlive(from);
+            GC.KeepAlive(to);
+            return ret;
+        }
+
+        /// <summary>
         /// Computes an optimal affine transformation between two 3D point sets.
         /// </summary>
         /// <param name="src">First input 3D point set.</param>
