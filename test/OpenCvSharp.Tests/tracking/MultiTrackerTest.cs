@@ -50,7 +50,45 @@ namespace OpenCvSharp.Tests.Tracking
                 }
             }
         }
-        
+
+        /// <summary>
+        /// https://github.com/shimat/opencvsharp/issues/601
+        /// </summary>
+        [Fact]
+        public void AddMany2()
+        {
+            var bbox1 = new Rect2d(10, 10, 200, 200);
+            var bbox2 = new Rect2d(300, 300, 100, 100);
+            var bboxArray = new Rect2d[] { bbox1, bbox2, };
+            
+            using (var mt = MultiTracker.Create())
+            {
+                using (var tracker1 = TrackerMIL.Create())
+                using (var vc = Image("lenna.png"))
+                {
+                    var ret = mt.Add(
+                        new Tracker[] { tracker1, tracker1, },
+                        vc,
+                        bboxArray);
+                    Assert.False(ret); // duplicate init call
+                }
+            }
+            
+            using (var mt = MultiTracker.Create())
+            {
+                using (var tracker1 = TrackerMIL.Create())
+                using (var tracker2 = TrackerMIL.Create())
+                using (var vc = Image("lenna.png"))
+                {
+                    var ret = mt.Add(
+                        new Tracker[] { tracker1, tracker2, },
+                        vc,
+                        bboxArray);
+                    Assert.True(ret);
+                }
+            }
+        }
+
         [Fact]
         public void Update()
         {            
@@ -64,8 +102,7 @@ namespace OpenCvSharp.Tests.Tracking
             var bb = new Rect2d(286, 146, 70, 180);
 
             // If you want to save markers image, you must change the following values.
-            const string path = "C:\\TrackerTest_Update";
-            const string basedir = "ETHZ\\seq03-img-left\\";
+            const string path = @"_data/image/ETHZ/seq03-img-left";
 
             using (var mt = MultiTracker.Create())
             using (var tracker1 = TrackerTLD.Create())
@@ -76,7 +113,7 @@ namespace OpenCvSharp.Tests.Tracking
                 foreach (var i in Enumerable.Range(0, 21))
                 {
                     var file = $"image_{i:D8}_0.png";
-                    using (var mat = Image(Path.Combine(basedir, file)))
+                    using (var mat = new Mat(Path.Combine(path, file)))
                     {
                         Rect2d[] boundingBoxes;
                         if (i == 0)

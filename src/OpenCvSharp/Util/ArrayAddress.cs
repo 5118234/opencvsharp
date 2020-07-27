@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 #pragma warning disable 1591
@@ -12,10 +13,10 @@ namespace OpenCvSharp.Util
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class ArrayAddress1<T> : DisposableObject
+        where T : unmanaged
     {
-        protected Array array;
-        protected GCHandle gch;
-        protected object original;
+        private readonly Array array;
+        private GCHandle gch;
 
         /// <summary>
         /// 
@@ -23,10 +24,8 @@ namespace OpenCvSharp.Util
         /// <param name="array"></param>
         public ArrayAddress1(T[] array)
         {
-            if (array == null)
-                throw new ArgumentNullException();
-            this.array = array;
-            this.gch = GCHandle.Alloc(array, GCHandleType.Pinned);
+            this.array = array ?? throw new ArgumentNullException();
+            gch = GCHandle.Alloc(array, GCHandleType.Pinned);
         }
 
         /// <summary>
@@ -34,9 +33,8 @@ namespace OpenCvSharp.Util
         /// </summary>
         /// <param name="enumerable"></param>
         public ArrayAddress1(IEnumerable<T> enumerable)
-            : this(EnumerableEx.ToArray(enumerable))
+            : this(enumerable.ToArray())
         {
-            original = enumerable;
         }
 
         /// <summary>
@@ -45,19 +43,8 @@ namespace OpenCvSharp.Util
         /// <param name="array"></param>
         public ArrayAddress1(T[,] array)
         {
-            if (array == null)
-                throw new ArgumentNullException();
-            this.array = array;
-            this.gch = GCHandle.Alloc(array, GCHandleType.Pinned);
-        }
-
-        /// <summary>
-        /// Releases managed resources
-        /// </summary>
-        protected override void DisposeManaged()
-        {
-            original = null;
-            base.DisposeManaged();
+            this.array = array ?? throw new ArgumentNullException(nameof(array));
+            gch = GCHandle.Alloc(array, GCHandleType.Pinned);
         }
 
         /// <summary>
@@ -75,27 +62,11 @@ namespace OpenCvSharp.Util
         /// <summary>
         /// 
         /// </summary>
-        public IntPtr Pointer
-        {
-            get { return gch.AddrOfPinnedObject(); }
-        }
+        public IntPtr Pointer => gch.AddrOfPinnedObject();
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="self"></param>
-        /// <returns></returns>
-        public static implicit operator IntPtr(ArrayAddress1<T> self)
-        {
-            return self.Pointer;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int Length
-        {
-            get { return array.Length; }
-        }
+        public int Length => array.Length;
     }
 }

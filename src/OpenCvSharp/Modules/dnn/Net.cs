@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using OpenCvSharp.Util;
+using System.Linq;
+
+// ReSharper disable UnusedMember.Global
+// ReSharper disable IdentifierTypo
+// ReSharper disable InconsistentNaming
+// ReSharper disable CommentTypo
 
 namespace OpenCvSharp.Dnn
 {
@@ -17,7 +21,9 @@ namespace OpenCvSharp.Dnn
     /// LayerId can store either layer name or layer id.
     /// This class supports reference counting of its instances, i.e.copies point to the same instance.
     /// </remarks>
+#pragma warning disable CA1724
     public class Net : DisposableCvObject
+#pragma warning restore CA1724
     {
         #region Init & Disposal
 
@@ -27,7 +33,8 @@ namespace OpenCvSharp.Dnn
         /// </summary>
         public Net()
         {
-            ptr = NativeMethods.dnn_Net_new();
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_new(out ptr));
         }
 
         /// <inheritdoc />
@@ -43,7 +50,8 @@ namespace OpenCvSharp.Dnn
         /// </summary>
         protected override void DisposeUnmanaged()
         {
-            NativeMethods.dnn_Net_delete(ptr);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_delete(ptr));
             base.DisposeUnmanaged();
         }
 
@@ -54,13 +62,14 @@ namespace OpenCvSharp.Dnn
         /// <param name="darknetModel">path to the .weights file with learned network.</param>
         /// <returns>Network object that ready to do forward, throw an exception in failure cases.</returns>
         /// <remarks>This is shortcut consisting from DarknetImporter and Net::populateNet calls.</remarks>
-        public static Net ReadNetFromDarknet(string cfgFile, string darknetModel = null)
+        public static Net ReadNetFromDarknet(string cfgFile, string? darknetModel = null)
         {
             if (cfgFile == null)
                 throw new ArgumentNullException(nameof(cfgFile));
 
-            IntPtr ptr = NativeMethods.dnn_readNetFromDarknet(cfgFile, darknetModel);
-            return new Net(ptr);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_readNetFromDarknet(cfgFile, darknetModel, out var p));
+            return new Net(p);
         }
 
         /// <summary>
@@ -70,13 +79,14 @@ namespace OpenCvSharp.Dnn
         /// <param name="caffeModel"></param>
         /// <returns></returns>
         /// <remarks>This is shortcut consisting from createCaffeImporter and Net::populateNet calls.</remarks>
-        public static Net ReadNetFromCaffe(string prototxt, string caffeModel = null)
+        public static Net ReadNetFromCaffe(string prototxt, string? caffeModel = null)
         {
             if (prototxt == null)
                 throw new ArgumentNullException(nameof(prototxt));
 
-            IntPtr ptr = NativeMethods.dnn_readNetFromCaffe(prototxt, caffeModel);
-            return new Net(ptr);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_readNetFromCaffe(prototxt, caffeModel, out var p));
+            return new Net(p);
         }
 
         /// <summary>
@@ -86,13 +96,14 @@ namespace OpenCvSharp.Dnn
         /// <param name="config"></param>
         /// <returns></returns>
         /// <remarks>This is shortcut consisting from createTensorflowImporter and Net::populateNet calls.</remarks>
-        public static Net ReadNetFromTensorflow(string model, string config = null)
+        public static Net ReadNetFromTensorflow(string model, string? config = null)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
-            IntPtr ptr = NativeMethods.dnn_readNetFromTensorflow(model, config);
-            return new Net(ptr);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_readNetFromTensorflow(model, config, out var p));
+            return new Net(p);
         }
 
         /// <summary>
@@ -107,8 +118,9 @@ namespace OpenCvSharp.Dnn
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
-            IntPtr ptr = NativeMethods.dnn_readNetFromTorch(model, isBinary ? 1 : 0);
-            return new Net(ptr);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_readNetFromTorch(model, isBinary ? 1 : 0, out var p));
+            return new Net(p);
         }
 
         /// <summary>
@@ -136,11 +148,12 @@ namespace OpenCvSharp.Dnn
         {
             if (string.IsNullOrEmpty(model))
                 throw new ArgumentException("message is null or empty", nameof(model));
-            config = config ?? "";
-            framework = framework ?? "";
+            config ??= "";
+            framework ??= "";
 
-            IntPtr net = NativeMethods.dnn_readNet(model, config, framework);
-            return new Net(net);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_readNet(model, config, framework, out var p));
+            return new Net(p);
         }
 
         /// <summary>
@@ -150,14 +163,15 @@ namespace OpenCvSharp.Dnn
         /// <param name="xml">XML configuration file with network's topology.</param>
         /// <param name="bin">Binary file with trained weights.</param>
         /// <returns></returns>
-        public static Net ReadNetFromModelOptimizer(string xml, string bin)
+        public static Net? ReadNetFromModelOptimizer(string xml, string bin)
         {
             if (xml == null)
                 throw new ArgumentNullException(nameof(xml));
             if (bin == null)
                 throw new ArgumentNullException(nameof(bin));
 
-            IntPtr p = NativeMethods.dnn_readNetFromModelOptimizer(xml, bin);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_readNetFromModelOptimizer(xml, bin, out var p));
             return (p == IntPtr.Zero) ? null : new Net(p);
         }
 
@@ -166,12 +180,14 @@ namespace OpenCvSharp.Dnn
         /// </summary>
         /// <param name="onnxFile">path to the .onnx file with text description of the network architecture.</param>
         /// <returns>Network object that ready to do forward, throw an exception in failure cases.</returns>
-        public static Net ReadNetFromONNX(string onnxFile)
+        // ReSharper disable once InconsistentNaming
+        public static Net? ReadNetFromONNX(string onnxFile)
         {
             if (onnxFile == null)
                 throw new ArgumentNullException(nameof(onnxFile));
 
-            IntPtr p = NativeMethods.dnn_readNetFromONNX(onnxFile);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_readNetFromONNX(onnxFile, out var p));
             return (p == IntPtr.Zero) ? null : new Net(p);
         }
 
@@ -185,7 +201,8 @@ namespace OpenCvSharp.Dnn
         /// <returns></returns>
         public bool Empty()
         {
-            var ret = NativeMethods.dnn_Net_empty(ptr);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_empty(ptr, out var ret));
             GC.KeepAlive(this);
             return ret != 0;
         }
@@ -200,7 +217,8 @@ namespace OpenCvSharp.Dnn
             if (layer == null)
                 throw new ArgumentNullException(nameof(layer));
 
-            var ret = NativeMethods.dnn_Net_getLayerId(ptr, layer);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_getLayerId(ptr, layer, out var ret));
             GC.KeepAlive(this);
             return ret;
         }
@@ -209,14 +227,13 @@ namespace OpenCvSharp.Dnn
         /// 
         /// </summary>
         /// <returns></returns>
-        public string[] GetLayerNames()
+        public string?[] GetLayerNames()
         {
-            using (var namesVec = new VectorOfString())
-            {
-                NativeMethods.dnn_Net_getLayerNames(ptr, namesVec.CvPtr);
-                GC.KeepAlive(this);
-                return namesVec.ToArray();
-            }
+            using var namesVec = new VectorOfString();
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_getLayerNames(ptr, namesVec.CvPtr));
+            GC.KeepAlive(this);
+            return namesVec.ToArray();
         }
 
         /// <summary>
@@ -231,7 +248,8 @@ namespace OpenCvSharp.Dnn
             if (inpPin == null)
                 throw new ArgumentNullException(nameof(inpPin));
 
-            NativeMethods.dnn_Net_connect1(ptr, outPin, inpPin);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_connect1(ptr, outPin, inpPin));
             GC.KeepAlive(this);
         }
 
@@ -244,7 +262,8 @@ namespace OpenCvSharp.Dnn
         /// <param name="inpNum">number of the second layer input</param>
         public void Connect(int outLayerId, int outNum, int inpLayerId, int inpNum)
         {
-            NativeMethods.dnn_Net_connect2(ptr, outLayerId, outNum, inpLayerId, inpNum);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_connect2(ptr, outLayerId, outNum, inpLayerId, inpNum));
             GC.KeepAlive(this);
         }
 
@@ -263,8 +282,9 @@ namespace OpenCvSharp.Dnn
             if (inputBlobNames == null)
                 throw new ArgumentNullException(nameof(inputBlobNames));
 
-            var inputBlobNamesArray = EnumerableEx.ToArray(inputBlobNames);
-            NativeMethods.dnn_Net_setInputsNames(ptr, inputBlobNamesArray, inputBlobNamesArray.Length);
+            var inputBlobNamesArray = inputBlobNames.ToArray();
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_setInputsNames(ptr, inputBlobNamesArray, inputBlobNamesArray.Length));
             GC.KeepAlive(this);
         }
 
@@ -274,9 +294,10 @@ namespace OpenCvSharp.Dnn
         /// </summary>
         /// <param name="outputName">name for layer which output is needed to get</param>
         /// <returns>blob for first output of specified layer.</returns>
-        public Mat Forward(string outputName = null)
+        public Mat Forward(string? outputName = null)
         {
-            IntPtr ret = NativeMethods.dnn_Net_forward1(ptr, outputName);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_forward1(ptr, outputName, out var ret));
             GC.KeepAlive(this);
             return new Mat(ret);
         }
@@ -287,13 +308,14 @@ namespace OpenCvSharp.Dnn
         /// <param name="outputBlobs">contains all output blobs for specified layer.</param>
         /// <param name="outputName">name for layer which output is needed to get. 
         /// If outputName is empty, runs forward pass for the whole network.</param>
-        public void Forward(IEnumerable<Mat> outputBlobs, string outputName = null)
+        public void Forward(IEnumerable<Mat> outputBlobs, string? outputName = null)
         {
             if (outputBlobs == null)
                 throw new ArgumentNullException(nameof(outputBlobs));
 
-            var outputBlobsPtrs = EnumerableEx.SelectPtrs(outputBlobs);
-            NativeMethods.dnn_Net_forward2(ptr, outputBlobsPtrs, outputBlobsPtrs.Length, outputName);
+            var outputBlobsPtrs = outputBlobs.Select(x => x.CvPtr).ToArray();
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_forward2(ptr, outputBlobsPtrs, outputBlobsPtrs.Length, outputName));
 
             GC.KeepAlive(outputBlobs);
             GC.KeepAlive(this);
@@ -311,9 +333,11 @@ namespace OpenCvSharp.Dnn
             if (outBlobNames == null)
                 throw new ArgumentNullException(nameof(outBlobNames));
 
-            var outputBlobsPtrs = EnumerableEx.SelectPtrs(outputBlobs);
-            var outBlobNamesArray = EnumerableEx.ToArray(outBlobNames);
-            NativeMethods.dnn_Net_forward3(ptr, outputBlobsPtrs, outputBlobsPtrs.Length, outBlobNamesArray, outBlobNamesArray.Length);
+            var outputBlobsPtrs = outputBlobs.Select(x => x.CvPtr).ToArray();
+            var outBlobNamesArray = outBlobNames.ToArray();
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_forward3(
+                    ptr, outputBlobsPtrs, outputBlobsPtrs.Length, outBlobNamesArray, outBlobNamesArray.Length));
 
             GC.KeepAlive(outputBlobs);
             GC.KeepAlive(this);
@@ -329,7 +353,8 @@ namespace OpenCvSharp.Dnn
         public void SetHalideScheduler(string scheduler)
         {
             ThrowIfDisposed();
-            NativeMethods.dnn_Net_setHalideScheduler(ptr, scheduler);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_setHalideScheduler(ptr, scheduler));
             GC.KeepAlive(this);
         }
 
@@ -337,10 +362,11 @@ namespace OpenCvSharp.Dnn
         /// Ask network to use specific computation backend where it supported.
         /// </summary>
         /// <param name="backendId">backend identifier.</param>
-        public void SetPreferableBackend(int backendId)
+        public void SetPreferableBackend(Backend backendId)
         {
             ThrowIfDisposed();
-            NativeMethods.dnn_Net_setPreferableBackend(ptr, backendId);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_setPreferableBackend(ptr, (int)backendId));
             GC.KeepAlive(this);
         }
 
@@ -348,10 +374,11 @@ namespace OpenCvSharp.Dnn
         /// Ask network to make computations on specific target device.
         /// </summary>
         /// <param name="targetId">target identifier.</param>
-        public void SetPreferableTarget(int targetId)
+        public void SetPreferableTarget(Target targetId)
         {
             ThrowIfDisposed();
-            NativeMethods.dnn_Net_setPreferableTarget(ptr, targetId);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_setPreferableTarget(ptr, (int)targetId));
             GC.KeepAlive(this);
         }
 
@@ -370,7 +397,8 @@ namespace OpenCvSharp.Dnn
             if (blob == null)
                 throw new ArgumentNullException(nameof(blob));
 
-            NativeMethods.dnn_Net_setInput(ptr, blob.CvPtr, name);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_setInput(ptr, blob.CvPtr, name));
             GC.KeepAlive(this);
         }
 
@@ -382,40 +410,26 @@ namespace OpenCvSharp.Dnn
         {
             ThrowIfDisposed();
 
-            try
-            {
-                using (var resultVec = new VectorOfInt32())
-                {
-                    NativeMethods.dnn_Net_getUnconnectedOutLayers(ptr, resultVec.CvPtr);
-                    return resultVec.ToArray();
-                }
-            }
-            finally
-            {
-                GC.KeepAlive(this);
-            }
+            using var resultVec = new VectorOfInt32();
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_getUnconnectedOutLayers(ptr, resultVec.CvPtr));
+            GC.KeepAlive(this);
+            return resultVec.ToArray();
         }
 
         /// <summary>
         /// Returns names of layers with unconnected outputs.
         /// </summary>
         /// <returns></returns>
-        public string[] GetUnconnectedOutLayersNames()
+        public string?[] GetUnconnectedOutLayersNames()
         {
             ThrowIfDisposed();
-
-            try
-            {
-                using (var resultVec = new VectorOfString())
-                {
-                    NativeMethods.dnn_Net_getUnconnectedOutLayersNames(ptr, resultVec.CvPtr);
-                    return resultVec.ToArray();
-                }
-            }
-            finally
-            {
-                GC.KeepAlive(this);
-            }
+            
+            using var resultVec = new VectorOfString();
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_getUnconnectedOutLayersNames(ptr, resultVec.CvPtr));
+            GC.KeepAlive(this);
+            return resultVec.ToArray();
         }
 
         /// <summary>
@@ -425,7 +439,8 @@ namespace OpenCvSharp.Dnn
         public void EnableFusion(bool fusion)
         {
             ThrowIfDisposed();
-            NativeMethods.dnn_Net_enableFusion(ptr, fusion ? 1 : 0);
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_enableFusion(ptr, fusion ? 1 : 0));
             GC.KeepAlive(this);
         }
 
@@ -440,14 +455,58 @@ namespace OpenCvSharp.Dnn
         {
             ThrowIfDisposed();
 
-            using (var timingsVec = new VectorOfDouble())
-            {
-                var ret = NativeMethods.dnn_Net_getPerfProfile(ptr, timingsVec.CvPtr);
-                GC.KeepAlive(this);
+            using var timingsVec = new VectorOfDouble();
+            NativeMethods.HandleException(
+                NativeMethods.dnn_Net_getPerfProfile(ptr, timingsVec.CvPtr, out var ret));
+            GC.KeepAlive(this);
 
-                timings = timingsVec.ToArray();
-                return ret;
-            }
+            timings = timingsVec.ToArray();
+            return ret;
+        }
+
+        #endregion
+
+        #region Enum
+
+        /// <summary>
+        /// Enum of computation backends supported by layers.
+        /// </summary>
+        /// <remarks>
+        /// DNN_BACKEND_DEFAULT equals to DNN_BACKEND_INFERENCE_ENGINE if
+        /// OpenCV is built with Intel's Inference Engine library or 
+        /// DNN_BACKEND_OPENCV otherwise.
+        /// </remarks>
+        public enum Backend
+        {
+            //! DNN_BACKEND_DEFAULT equals to DNN_BACKEND_INFERENCE_ENGINE if
+            //! OpenCV is built with Intel's Inference Engine library or
+            //! DNN_BACKEND_OPENCV otherwise.
+#pragma warning disable CS1591
+            // ReSharper disable once InconsistentNaming
+            DEFAULT,
+            HALIDE,
+            INFERENCE_ENGINE,
+            OPENCV,
+            VKCOM,
+            CUDA
+#pragma warning restore CS1591
+        }
+
+        /// <summary>
+        /// Enum of target devices for computations.
+        /// </summary>
+        public enum Target
+        {
+#pragma warning disable CS1591
+            CPU,
+            OPENCL,
+            OPENCL_FP16,
+            MYRIAD,
+            VULKAN,
+            FPGA, 
+            CUDA,
+            CUDA_FP16
+#pragma warning restore CS1591
         }
 
         #endregion

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 // Copyright (C) 2007 by Cristóbal Carnero Liñán
 // grendel.ccl@gmail.com
@@ -37,8 +36,8 @@ namespace OpenCvSharp.Blob
         /// <param name="mode"></param>
         /// <param name="color"></param>
         /// <param name="alpha"></param>
-        public static unsafe void PerformOne(LabelData labels, CvBlob blob, Mat imgSrc, Mat imgDst,
-            RenderBlobsMode mode, Scalar color, double alpha)
+        public static void PerformOne(LabelData labels, CvBlob blob, Mat imgSrc, Mat imgDst,
+            RenderBlobsModes mode, Scalar color, double alpha)
         {
             if (labels == null)
                 throw new ArgumentNullException(nameof(labels));
@@ -51,7 +50,7 @@ namespace OpenCvSharp.Blob
             if (imgDst.Type() != MatType.CV_8UC3)
                 throw new ArgumentException("'img' must be a 3-channel U8 image.");
 
-            if ((mode & RenderBlobsMode.Color) == RenderBlobsMode.Color)
+            if ((mode & RenderBlobsModes.Color) == RenderBlobsModes.Color)
             {
                 var pSrc = imgSrc.GetGenericIndexer<Vec3b>();
                 var pDst = imgDst.GetGenericIndexer<Vec3b>();
@@ -71,9 +70,9 @@ namespace OpenCvSharp.Blob
                 }
             }
 
-            if (mode != RenderBlobsMode.None)
+            if (mode != RenderBlobsModes.None)
             {
-                if ((mode & RenderBlobsMode.BoundingBox) == RenderBlobsMode.BoundingBox)
+                if ((mode & RenderBlobsModes.BoundingBox) == RenderBlobsModes.BoundingBox)
                 {
                     Cv2.Rectangle(
                         imgDst,
@@ -81,7 +80,7 @@ namespace OpenCvSharp.Blob
                         new Point(blob.MaxX, blob.MaxY),
                         new Scalar(255, 0, 0));
                 }
-                if ((mode & RenderBlobsMode.Angle) == RenderBlobsMode.Angle)
+                if ((mode & RenderBlobsModes.Angle) == RenderBlobsModes.Angle)
                 {
                     double angle = blob.Angle();
                     double lengthLine = Math.Max(blob.MaxX - blob.MinX, blob.MaxY - blob.MinY) / 2.0;
@@ -92,7 +91,7 @@ namespace OpenCvSharp.Blob
                     Cv2.Line(imgDst, new Point((int)x1, (int)y1), new Point((int)x2, (int)y2),
                         new Scalar(0, 255, 0));
                 }
-                if ((mode & RenderBlobsMode.Centroid) == RenderBlobsMode.Centroid)
+                if ((mode & RenderBlobsModes.Centroid) == RenderBlobsModes.Centroid)
                 {
                     Cv2.Line(imgDst,
                         new Point((int)blob.Centroid.X - 3, (int)blob.Centroid.Y),
@@ -114,7 +113,7 @@ namespace OpenCvSharp.Blob
         /// <param name="imgDst"></param>
         /// <param name="mode"></param>
         /// <param name="alpha"></param>
-        public static void PerformMany(CvBlobs blobs, Mat imgSrc, Mat imgDst, RenderBlobsMode mode, double alpha)
+        public static void PerformMany(CvBlobs blobs, Mat imgSrc, Mat imgDst, RenderBlobsModes mode, double alpha)
         {
             if (blobs == null)
                 throw new ArgumentNullException(nameof(blobs));
@@ -124,15 +123,16 @@ namespace OpenCvSharp.Blob
                 throw new ArgumentNullException(nameof(imgDst));
             if (imgDst.Type() != MatType.CV_8UC3)
                 throw new ArgumentException("'img' must be a 3-channel U8 image.");
+            if (blobs.Labels == null)
+                throw new NotSupportedException("blobs.Labels == null");
 
             var palette = new Dictionary<int, Scalar>();
-            if ((mode & RenderBlobsMode.Color) == RenderBlobsMode.Color)
+            if ((mode & RenderBlobsModes.Color) == RenderBlobsModes.Color)
             {
                 int colorCount = 0;
                 foreach (var kv in blobs)
                 {
-                    double r, g, b;
-                    Hsv2Rgb((colorCount*77) % 360, 0.5, 1.0, out r, out g, out b);
+                    Hsv2Rgb((colorCount*77) % 360, 0.5, 1.0, out var r, out var g, out var b);
                     colorCount++;
                     palette[kv.Key] = new Scalar(b, g, r);
                 }
@@ -140,7 +140,7 @@ namespace OpenCvSharp.Blob
 
             foreach (var kv in blobs)
             {
-                Scalar color = default (Scalar);
+                Scalar color = default;
                 if (palette.ContainsKey(kv.Key))
                     color = palette[kv.Key];
                 PerformOne(blobs.Labels, kv.Value, imgSrc, imgDst, mode, color, alpha);

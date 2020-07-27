@@ -1,45 +1,59 @@
 #ifndef _CPP_ML_NORMALBAYESCLASSIFIER_H_
 #define _CPP_ML_NORMALBAYESCLASSIFIER_H_
 
+// ReSharper disable CppNonInlineFunctionDefinitionInHeaderFile
+// ReSharper disable CppInconsistentNaming
+
 #include "include_opencv.h"
-using namespace cv::ml;
 
-
-CVAPI(float) ml_NormalBayesClassifier_predictProb(
-    NormalBayesClassifier *obj, cv::_InputArray *inputs, 
-    cv::_OutputArray *samples, cv::_OutputArray *outputProbs, int flags)
+CVAPI(ExceptionStatus) ml_NormalBayesClassifier_predictProb(
+    cv::ml::NormalBayesClassifier *obj, cv::_InputArray *inputs, 
+    cv::_OutputArray *samples, cv::_OutputArray *outputProbs, int flags, float *returnValue)
 {
-    return obj->predictProb(entity(inputs), entity(samples), entity(outputProbs), flags);
+    BEGIN_WRAP
+    *returnValue = obj->predictProb(entity(inputs), entity(samples), entity(outputProbs), flags);
+    END_WRAP
 }
 
-CVAPI(cv::Ptr<NormalBayesClassifier>*) ml_NormalBayesClassifier_create()
+CVAPI(ExceptionStatus) ml_NormalBayesClassifier_create(cv::Ptr<cv::ml::NormalBayesClassifier> **returnValue)
 {
-    cv::Ptr<NormalBayesClassifier> ptr = NormalBayesClassifier::create();
-    return new cv::Ptr<NormalBayesClassifier>(ptr);
+    BEGIN_WRAP
+    const auto ptr = cv::ml::NormalBayesClassifier::create();
+    *returnValue = new cv::Ptr<cv::ml::NormalBayesClassifier>(ptr);
+    END_WRAP
 }
 
-CVAPI(void) ml_Ptr_NormalBayesClassifier_delete(cv::Ptr<NormalBayesClassifier> *obj)
+CVAPI(ExceptionStatus) ml_Ptr_NormalBayesClassifier_delete(cv::Ptr<cv::ml::NormalBayesClassifier> *obj)
 {
+    BEGIN_WRAP
     delete obj;
+    END_WRAP
 }
 
-CVAPI(NormalBayesClassifier*) ml_Ptr_NormalBayesClassifier_get(
-    cv::Ptr<NormalBayesClassifier>* obj)
+CVAPI(ExceptionStatus) ml_Ptr_NormalBayesClassifier_get(
+    cv::Ptr<cv::ml::NormalBayesClassifier>* obj, cv::ml::NormalBayesClassifier **returnValue)
+
 {
-    return obj->get();
+    BEGIN_WRAP
+    *returnValue = obj->get();
+    END_WRAP
 }
 
-CVAPI(cv::Ptr<NormalBayesClassifier>*) ml_NormalBayesClassifier_load(const char *filePath)
+CVAPI(ExceptionStatus) ml_NormalBayesClassifier_load(const char *filePath, cv::Ptr<cv::ml::NormalBayesClassifier> **returnValue)
 {
-    cv::Ptr<NormalBayesClassifier> ptr = cv::Algorithm::load<NormalBayesClassifier>(filePath);
-    return new cv::Ptr<NormalBayesClassifier>(ptr);
+    BEGIN_WRAP
+    const auto  ptr = cv::Algorithm::load<cv::ml::NormalBayesClassifier>(filePath);
+    *returnValue = new cv::Ptr<cv::ml::NormalBayesClassifier>(ptr);
+    END_WRAP
 }
 
-CVAPI(cv::Ptr<NormalBayesClassifier>*) ml_NormalBayesClassifier_loadFromString(const char *strModel)
+CVAPI(ExceptionStatus) ml_NormalBayesClassifier_loadFromString(const char *strModel, cv::Ptr<cv::ml::NormalBayesClassifier> **returnValue)
 {
-    cv::String objname = cv::ml::NormalBayesClassifier::create()->getDefaultName();
-    cv::Ptr<NormalBayesClassifier> ptr = cv::Algorithm::loadFromString<NormalBayesClassifier>(strModel, objname);
-    return new cv::Ptr<NormalBayesClassifier>(ptr);
+    BEGIN_WRAP
+    const auto objName = cv::ml::NormalBayesClassifier::create()->getDefaultName();
+    const auto ptr = cv::Algorithm::loadFromString<cv::ml::NormalBayesClassifier>(strModel, objName);
+    *returnValue = new cv::Ptr<cv::ml::NormalBayesClassifier>(ptr);
+    END_WRAP
 }
 
 #endif

@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenCvSharp.Util;
 
 namespace OpenCvSharp.Blob
 {
@@ -7,40 +8,28 @@ namespace OpenCvSharp.Blob
     /// </summary>
     public class LabelData 
     {
-        private Size size;
-        private int[,] values;
+        private readonly Size size;
+        private readonly int[,] values;
 
         /// <summary>
         /// Label value
         /// </summary>
-        public int[,] Values
-        {
-            get { return values; }
-        }
+        public ReadOnlyArray2D<int> Values => new ReadOnlyArray2D<int>(values);
 
         /// <summary>
         /// Image sizw
         /// </summary>
-        public Size Size
-        {
-            get { return size; } 
-        }
+        public Size Size => size;
 
         /// <summary>
         /// Row length
         /// </summary>
-        public int Rows
-        {
-            get { return Values.GetLength(0); }
-        }
+        public int Rows => Values.GetLength(0);
 
         /// <summary>
         /// Column Length
         /// </summary>
-        public int Cols
-        {
-            get { return Values.GetLength(1); }
-        }
+        public int Cols => Values.GetLength(1);
 
         /// <summary>
         /// 
@@ -59,19 +48,11 @@ namespace OpenCvSharp.Blob
         /// <param name="values"></param>
         public LabelData(int[,] values)
         {
-            values = (int[,]) values.Clone();
+            if (values == null) 
+                throw new ArgumentNullException(nameof(values));
+            this.values = (int[,]) values.Clone();
             size.Height = values.GetLength(0);
             size.Width = values.GetLength(1);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="roi"></param>
-        public LabelData(int[,] values, Rect roi)
-        {
-            values = (int[,]) values.Clone();
         }
 
         /// <summary>
@@ -82,7 +63,7 @@ namespace OpenCvSharp.Blob
         /// <returns></returns>
         public int RawGetLabel(int row, int col)
         {
-            return Values[row, col];
+            return values[row, col];
         }
 
         /// <summary>
@@ -93,7 +74,7 @@ namespace OpenCvSharp.Blob
         /// <param name="value"></param>
         public void RawSetLabel(int row, int col, int value)
         {
-            Values[row, col] = value;
+            values[row, col] = value;
         }
 
         /// <summary>
@@ -104,8 +85,8 @@ namespace OpenCvSharp.Blob
         /// <returns></returns>
         public int this[int row, int col]
         {
-            get { return Values[row, col]; }
-            set { Values[row, col] = value; }
+            get => values[row, col];
+            set => values[row, col] = value;
         }
 
         /// <summary>
@@ -134,7 +115,7 @@ namespace OpenCvSharp.Blob
         /// <returns></returns>
         public LabelData Clone()
         {
-            return new LabelData((int[,]) Values.Clone());
+            return new LabelData((int[,]) values.Clone());
         }
     }
 }
