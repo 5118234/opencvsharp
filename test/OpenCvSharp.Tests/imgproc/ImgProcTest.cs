@@ -403,6 +403,17 @@ namespace OpenCvSharp.Tests.ImgProc
         }
 
         [Fact]
+        public void RectangleShift()
+        {
+            using var mat = new Mat(300, 300, MatType.CV_8UC3, Scalar.All(0));
+            Cv2.Rectangle(mat, new Rect(10, 20, 100, 200), Scalar.Red, -1, LineTypes.Link8, 0);
+            Cv2.Rectangle(mat, new Rect(10, 20, 100, 200), Scalar.Green, -1, LineTypes.Link8, 1);
+            Cv2.Rectangle(mat, new Rect(10, 20, 100, 200), Scalar.Blue, -1, LineTypes.Link8, 2);
+
+            ShowImagesWhenDebugMode(mat);
+        }
+
+        [Fact]
         public void RectangleFilled()
         {
             var color = Scalar.Red;
@@ -475,6 +486,66 @@ namespace OpenCvSharp.Tests.ImgProc
             Cv2.ApplyColorMap(src, dst, userColor);
 
             ShowImagesWhenDebugMode(src, dst);
+        }
+        
+        [Fact]
+        public void CornerHarris()
+        {
+            using var src = Image("building.jpg", ImreadModes.Grayscale);
+            using var corners = new Mat();
+            using var dst = new Mat();
+            Cv2.CornerHarris(src, corners, 2, 3, 0.04);
+
+            if (Debugger.IsAttached)
+            {
+                Cv2.Normalize(corners, corners, 0, 255, NormTypes.MinMax);
+                Cv2.Threshold(corners, dst, 180, 255, ThresholdTypes.Binary);
+                Window.ShowImages(src, corners, dst);
+            }
+        }
+
+        [Fact]
+        public void CornerMinEigenVal()
+        {
+            using var src = Image("building.jpg", ImreadModes.Grayscale);
+            using var corners = new Mat();
+            using var dst = new Mat();
+            Cv2.CornerMinEigenVal(src, corners, 2, 3, BorderTypes.Reflect);
+
+            if (Debugger.IsAttached)
+            {
+                Cv2.Normalize(corners, corners, 0, 255, NormTypes.MinMax);
+                Cv2.Threshold(corners, dst, 180, 255, ThresholdTypes.Binary);
+                Window.ShowImages(src, corners, dst);
+            }
+        }
+
+        [Fact]
+        public void FindContours()
+        {
+            using var src = Image("markers_6x6_250.png", ImreadModes.Grayscale);
+            Cv2.BitwiseNot(src, src);
+            Cv2.FindContours(
+                src, 
+                out var contours,
+                out var hierarchy, 
+                RetrievalModes.External,
+                ContourApproximationModes.ApproxSimple);
+
+            Assert.NotEmpty(contours);
+            Assert.NotEmpty(hierarchy);
+
+            Assert.All(contours, contour =>
+            {
+                Assert.Equal(4, contour.Length);
+            });
+
+            if (Debugger.IsAttached)
+            {
+                using var view = new Mat(src.Size(), MatType.CV_8UC3, Scalar.All(0));
+                Cv2.DrawContours(view, contours, -1, Scalar.Red);
+                Window.ShowImages(src, view);
+            }
         }
     }
 }

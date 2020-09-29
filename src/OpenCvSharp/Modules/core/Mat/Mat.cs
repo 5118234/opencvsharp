@@ -650,7 +650,7 @@ namespace OpenCvSharp
 
 #if LANG_JP
         /// <summary>
-        /// 画像データ(JPEG等の画像をメモリに展開したもの)からMatを生成する (cv::decode)
+        /// 画像データ(JPEG等の画像をメモリに展開したもの)からMatを生成する (cv::imdecode)
         /// </summary>
         /// <param name="imageBytes"></param>
         /// <param name="mode"></param>
@@ -670,9 +670,20 @@ namespace OpenCvSharp
             return Cv2.ImDecode(imageBytes, mode);
         }
 
+        /// <summary>
+        /// Reads image from the specified buffer in memory.
+        /// </summary>
+        /// <param name="span">The input slice of bytes.</param>
+        /// <param name="mode">The same flags as in imread</param>
+        /// <returns></returns>
+        public static Mat ImDecode(ReadOnlySpan<byte> span, ImreadModes mode = ImreadModes.Color)
+        {
+            return Cv2.ImDecode(span, mode);
+        }
+
 #if LANG_JP
         /// <summary>
-        /// 画像データ(JPEG等の画像をメモリに展開したもの)からMatを生成する (cv::decode)
+        /// 画像データ(JPEG等の画像をメモリに展開したもの)からMatを生成する (cv::imdecode)
         /// </summary>
         /// <param name="imageBytes"></param>
         /// <param name="mode"></param>
@@ -688,6 +699,17 @@ namespace OpenCvSharp
         public static Mat FromImageData(byte[] imageBytes, ImreadModes mode = ImreadModes.Color)
         {
             return ImDecode(imageBytes, mode);
+        }
+
+        /// <summary>
+        /// Reads image from the specified buffer in memory.
+        /// </summary>
+        /// <param name="span">The input slice of bytes.</param>
+        /// <param name="mode">The same flags as in imread</param>
+        /// <returns></returns>
+        public static Mat FromImageData(ReadOnlySpan<byte> span, ImreadModes mode = ImreadModes.Color)
+        {
+            return Cv2.ImDecode(span, mode);
         }
 
         #endregion
@@ -1550,6 +1572,7 @@ namespace OpenCvSharp
             }
         }
 
+#if NETCOREAPP3_1 || NETSTANDARD2_1
         /// <summary>
         /// Extracts a rectangular submatrix.
         /// </summary>
@@ -1558,7 +1581,36 @@ namespace OpenCvSharp
         /// <param name="colRange">Start and end column of the extracted submatrix. 
         /// The upper boundary is not included. To select all the columns, use Range.All().</param>
         /// <returns></returns>
-        public Mat this[Range rowRange, Range colRange]
+        public Mat this[System.Range rowRange, System.Range colRange]
+        {
+            get => SubMat(rowRange, colRange);
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                value.ThrowIfDisposed();
+                //if (Type() != value.Type())
+                //    throw new ArgumentException("Mat type mismatch");
+                if (Dims != value.Dims)
+                    throw new ArgumentException("Dimension mismatch");
+
+                var sub = SubMat(rowRange, colRange);
+                if (sub.Size() != value.Size())
+                    throw new ArgumentException("Specified ROI != mat.Size()");
+                value.CopyTo(sub);
+            }
+        }
+#endif
+
+        /// <summary>
+        /// Extracts a rectangular submatrix.
+        /// </summary>
+        /// <param name="rowRange">Start and end row of the extracted submatrix. The upper boundary is not included. 
+        /// To select all the rows, use Range.All().</param>
+        /// <param name="colRange">Start and end column of the extracted submatrix. 
+        /// The upper boundary is not included. To select all the columns, use Range.All().</param>
+        /// <returns></returns>
+        public Mat this[OpenCvSharp.Range rowRange, OpenCvSharp.Range colRange]
         {
             get => SubMat(rowRange, colRange);
             set
@@ -1669,11 +1721,24 @@ namespace OpenCvSharp
         /// </summary>
         /// <param name="range"></param>
         /// <returns></returns>
-        public Mat ColRange(Range range)
+        public Mat ColRange(OpenCvSharp.Range range)
         {
             return ColRange(range.Start, range.End);
         }
-        
+
+#if NETCOREAPP3_1 || NETSTANDARD2_1
+        /// <summary>
+        /// Creates a matrix header for the specified column span.
+        /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public Mat ColRange(System.Range range)
+        {
+            var (colStart, colLength) = range.GetOffsetAndLength(Cols);
+            return ColRange(colStart, colStart + colLength);
+        }
+#endif
+
         /// <summary>
         /// Creates a matrix header for the specified matrix row.
         /// </summary>
@@ -1688,7 +1753,7 @@ namespace OpenCvSharp
         }
 
         /// <summary>
-        /// 
+        /// Creates a matrix header for the specified row span.
         /// </summary>
         /// <param name="startRow"></param>
         /// <param name="endRow"></param>
@@ -1703,14 +1768,27 @@ namespace OpenCvSharp
         }
 
         /// <summary>
-        /// 
+        ///  Creates a matrix header for the specified row span.
         /// </summary>
         /// <param name="range"></param>
         /// <returns></returns>
-        public Mat RowRange(Range range)
+        public Mat RowRange(OpenCvSharp.Range range)
         {
             return RowRange(range.Start, range.End);
         }
+
+#if NETCOREAPP3_1 || NETSTANDARD2_1
+        /// <summary>
+        ///  Creates a matrix header for the specified row span.
+        /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public Mat RowRange(System.Range range)
+        {
+            var (rowStart, rowLength) = range.GetOffsetAndLength(Rows);
+            return RowRange(rowStart, rowStart + rowLength);
+        }
+#endif
 
         /// <summary>
         /// Single-column matrix that forms a diagonal matrix or index of the diagonal, with the following values:
@@ -3175,10 +3253,27 @@ namespace OpenCvSharp
         /// <param name="colRange">Start and end column of the extracted submatrix. The upper boundary is not included.
         /// To select all the columns, use Range::all().</param>
         /// <returns></returns>
-        public Mat SubMat(Range rowRange, Range colRange)
+        public Mat SubMat(OpenCvSharp.Range rowRange, OpenCvSharp.Range colRange)
         {
             return SubMat(rowRange.Start, rowRange.End, colRange.Start, colRange.End);
         }
+
+#if NETCOREAPP3_1 || NETSTANDARD2_1
+        /// <summary>
+        /// Extracts a rectangular submatrix.
+        /// </summary>
+        /// <param name="rowRange">Start and end row of the extracted submatrix. The upper boundary is not included.
+        /// To select all the rows, use Range::all().</param>
+        /// <param name="colRange">Start and end column of the extracted submatrix. The upper boundary is not included.
+        /// To select all the columns, use Range::all().</param>
+        /// <returns></returns>
+        public Mat SubMat(System.Range rowRange, System.Range colRange)
+        {
+            var (rowStart, rowLength) = rowRange.GetOffsetAndLength(Rows);
+            var (colStart, colLength) = colRange.GetOffsetAndLength(Cols);
+            return SubMat(rowStart, rowStart + rowLength, colStart, colStart + colLength);
+        }
+#endif
 
         /// <summary>
         /// Extracts a rectangular submatrix.
@@ -3682,11 +3777,11 @@ namespace OpenCvSharp
         #region EmptyClone
 
 #if LANG_JP
-/// <summary>
-/// このMatと同じサイズ・ビット深度・チャネル数を持つ
-/// Matオブジェクトを新たに作成し、返す
-/// </summary>
-/// <returns>コピーされた画像</returns>
+        /// <summary>
+        /// このMatと同じサイズ・ビット深度・チャネル数を持つ
+        /// Matオブジェクトを新たに作成し、返す
+        /// </summary>
+        /// <returns>コピーされた画像</returns>
 #else
         /// <summary>
         /// Makes a Mat that have the same size, depth and channels as this image
@@ -4338,7 +4433,7 @@ namespace OpenCvSharp
         }
 
         #endregion
-        
+
         #region To*
 
         /// <summary>
