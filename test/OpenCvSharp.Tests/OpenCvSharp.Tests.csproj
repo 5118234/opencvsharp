@@ -55,7 +55,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-    <PackageReference Include="SharpZipLib" Version="1.2.0" />
+    <PackageReference Include="SharpZipLib" Version="1.3.0" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -69,9 +69,13 @@
     <None Update="OpenCvSharpExtern.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="opencv_videoio_ffmpeg440_64.dll">
+    <None Update="opencv_videoio_ffmpeg450_64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="_data\image\Dnn\" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net48' ">

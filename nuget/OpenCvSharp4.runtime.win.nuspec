@@ -5,7 +5,7 @@
         <version>4.3.0.20190901</version>
         <title>OpenCvSharp4 native bindings for Windows x64/x86 (except UWP)</title>
         <authors>shimat</authors>
-        <license type="expression">BSD-3-Clause</license>
+        <license type="expression">Apache-2.0</license>
         <projectUrl>https://github.com/shimat/opencvsharp</projectUrl>
         <iconUrl>https://raw.githubusercontent.com/shimat/opencvsharp/master/nuget/icon/opencvsharp.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -26,11 +26,9 @@
     </metadata>
     <files>
         <file src="..\src\Release\x64\OpenCvSharpExtern.dll"   target="runtimes\win-x64\native" />
-        <file src="..\src\Release\x64\OpenCvSharpExtern.pdb"   target="runtimes\win-x64\native" />
         <file src="..\src\Release\Win32\OpenCvSharpExtern.dll" target="runtimes\win-x86\native" />
-        <file src="..\src\Release\Win32\OpenCvSharpExtern.pdb" target="runtimes\win-x86\native" />
-        <file src="..\opencv_files\opencv440_win_x64\x64\vc16\bin\opencv_videoio_ffmpeg440_64.dll" target="runtimes\win-x64\native" />
-        <file src="..\opencv_files\opencv440_win_x86\x86\vc16\bin\opencv_videoio_ffmpeg440.dll"    target="runtimes\win-x86\native" />
+        <file src="..\opencv_files\opencv450_win_x64\x64\vc16\bin\opencv_videoio_ffmpeg450_64.dll" target="runtimes\win-x64\native" />
+        <file src="..\opencv_files\opencv450_win_x86\x86\vc16\bin\opencv_videoio_ffmpeg450.dll"    target="runtimes\win-x86\native" />
         <file src="OpenCvSharp4.runtime.win.props" target="build\net\OpenCvSharp4.runtime.win.props" />
         <file src="OpenCvSharp4.runtime.win.props" target="build\netstandard\OpenCvSharp4.runtime.win.props" />
         <file src="OpenCvSharp4.runtime.win.props" target="build\netcoreapp\OpenCvSharp4.runtime.win.props" />

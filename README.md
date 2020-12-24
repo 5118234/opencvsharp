@@ -4,8 +4,7 @@ Wrapper of OpenCV for .NET
 
 Old versions of OpenCvSharp are stored in [opencvsharp_2410](https://github.com/shimat/opencvsharp_2410).
 
-## Installation
-### NuGet
+## NuGet
 
 | Package | Description | Link |
 |---------|-------------|------|
@@ -15,14 +14,22 @@ Old versions of OpenCvSharp are stored in [opencvsharp_2410](https://github.com/
 |**OpenCvSharp4.runtime.win**| Native bindings for Windows x64/x86 (except UWP) | [![NuGet version](https://badge.fury.io/nu/OpenCvSharp4.runtime.win.svg)](https://badge.fury.io/nu/OpenCvSharp4.runtime.win) |
 |**OpenCvSharp4.runtime.uwp**| Native bindings for UWP (Universal Windows Platform) x64/x86/ARM | [![NuGet version](https://badge.fury.io/nu/OpenCvSharp4.runtime.uwp.svg)](https://badge.fury.io/nu/OpenCvSharp4.runtime.uwp) |
 |**OpenCvSharp4.runtime.ubuntu.18.04-x64**| Native bindings for Ubuntu 18.04 x64 | [![NuGet version](https://badge.fury.io/nu/OpenCvSharp4.runtime.ubuntu.18.04-x64.svg)](https://badge.fury.io/nu/OpenCvSharp4.runtime.ubuntu.18.04-x64) |
-|**OpenCvSharp4.runtime.ubuntu.16.04-x64 (beta)**| Native bindings for Ubuntu 16.04 x64. This is for Google AppEngine Flexible and made in gcr.io/google-appengine/aspnetcore:2.1 docker image. | [![NuGet version](https://badge.fury.io/nu/OpenCvSharp4.runtime.ubuntu.16.04-x64.svg)](https://badge.fury.io/nu/OpenCvSharp4.runtime.ubuntu.16.04-x64) |
 |**OpenCvSharp4.runtime.osx.10.15-x64**| Native bindings for macOS 10.15 x64 | [![NuGet version](https://badge.fury.io/nu/OpenCvSharp4.runtime.osx.10.15-x64.svg)](https://www.nuget.org/packages/OpenCvSharp4.runtime.osx.10.15-x64/) |
 |(beta packages)| Development Build Package    | https://ci.appveyor.com/nuget/opencvsharp |
 
-Native binding (OpenCvSharpExtern.dll / libOpenCvSharpExtern.so) is required to work OpenCvSharp. To use OpenCvSharp, you should add both `OpenCvSharp4` and `OpenCvSharp4.runtime.*` packages to your project. Currently, native bindings for Windows, UWP, Ubuntu 18.04/16.04 and macOS are released.
+Native binding (OpenCvSharpExtern.dll / libOpenCvSharpExtern.so) is required to work OpenCvSharp. To use OpenCvSharp, you should add both `OpenCvSharp4` and `OpenCvSharp4.runtime.*` packages to your project. Currently, native bindings for Windows, UWP, Ubuntu 18.04 and macOS are released.
 
 Packages named OpenCvSharp3-* and OpenCvSharp-* are deprecated.
 > [OpenCvSharp3-AnyCPU](https://www.nuget.org/packages/OpenCvSharp3-AnyCPU/) / [OpenCvSharp3-WithoutDll](https://www.nuget.org/packages/OpenCvSharp3-WithoutDll/) / [OpenCvSharp-AnyCPU](https://www.nuget.org/packages/OpenCvSharp-AnyCPU/) /  [OpenCvSharp-WithoutDll](https://www.nuget.org/packages/OpenCvSharp-WithoutDll/)
+
+## Docker images
+https://hub.docker.com/u/shimat
+- Ubuntu 18.04 (.NET Core 3.1): [shimat/ubuntu18-dotnetcore3.1-opencv4.5.0](https://hub.docker.com/r/shimat/ubuntu18-dotnetcore3.1-opencv4.5.0)
+- For Google App Engine Flexible (.NET Core 3.1): [shimat/appengine-aspnetcore3.1-opencv4.5.0](https://hub.docker.com/r/shimat/appengine-aspnetcore3.1-opencv4.5.0)
+- For AWS Lambda (.NET 5): [shimat/al2-dotnet5-opencv4.5.0](https://hub.docker.com/r/shimat/al2-dotnet5-opencv4.5.0)
+  - Code sample: https://github.com/shimat/opencvsharp_AWSLambdaSample
+
+## Installation
 
 ### Windows (except UWP)
 Add `OpenCvSharp4` and `OpenCvSharp4.runtime.win` NuGet packages to your project. You can use `OpenCvSharp4.Windows` instead.
@@ -41,14 +48,27 @@ dotnet add package OpenCvSharp4.runtime.ubuntu.18.04-x64
 dotnet run
 ```
 
-### Ubuntu 16.04 (Google AppEngine Flexible)
-Add `OpenCvSharp4` and `OpenCvSharp4.runtime.ubuntu.16.04.x64 (beta)` NuGet packages to your project.
+### Google AppEngine Flexible (Ubuntu 16.04)
+Some Docker images are provided to use OpenCvSharp with AppEngine Flexible. The native binding (libOpenCvSharpExtern) is already built in the docker image and you don't need to worry about it.
+```
+FROM shimat/appengine-aspnetcore3.1-opencv4.5.0:20201030
+
+ADD ./ /app 
+ENV ASPNETCORE_URLS=http://*:${PORT} 
+
+WORKDIR /app 
+ENTRYPOINT [ "dotnet", "YourAspNetCoreProject.dll" ]
+```
+
+### Ubuntu 18.04 Docker image
+You can use the `shimat/ubuntu18-dotnetcore3.1-opencv4.5.0` docker image.
+This issue may be helpful: https://github.com/shimat/opencvsharp/issues/920
 
 ### Downloads
 If you do not use NuGet, get DLL files from the [release page](https://github.com/shimat/opencvsharp/releases).
 
 ## Target OpenCV
-* [OpenCV 4.4.0](http://opencv.org/) with [opencv_contrib](https://github.com/opencv/opencv_contrib)
+* [OpenCV 4.5.0](http://opencv.org/) with [opencv_contrib](https://github.com/opencv/opencv_contrib)
 
 ## Requirements
 * [.NET Framework 4.6.1](http://www.microsoft.com/ja-jp/download/details.aspx?id=1639) / [.NET Core 2.0](https://www.microsoft.com/net/download) / [Mono](http://www.mono-project.com/Main_Page)
@@ -57,7 +77,7 @@ If you do not use NuGet, get DLL files from the [release page](https://github.co
 ```
 PS1> Install-WindowsFeature Server-Media-Foundation
 ```
-* (Ubuntu) Build OpenCV with opencv_contrib in advance. Many packages such as libjpeg must be installed in order to work. 
+* (Ubuntu, Mac) You must pre-install all the dependency packages needed to build OpenCV. Many packages such as libjpeg must be installed in order to work OpenCV. 
 https://www.learnopencv.com/install-opencv-4-on-ubuntu-18-04/
 
 
@@ -68,6 +88,7 @@ https://www.learnopencv.com/install-opencv-4-on-ubuntu-18-04/
 ## Usage
 For more details, see **[samples](https://github.com/shimat/opencvsharp_samples/)** and **[Wiki](https://github.com/shimat/opencvsharp/wiki)** pages.
 
+**Always remember to release Mat instances! The `using` syntax is useful.**
 ```C#
 // C# 8
 // Edge detection by Canny algorithm
@@ -121,7 +142,6 @@ If you want to use some OpenCV features that are not provided by default in Open
 - Run the PowerShell script.
 
 ### Ubuntu 18.04
-
 - Build OpenCV with opencv_contrib. 
   - https://www.learnopencv.com/install-opencv-4-on-ubuntu-18-04/
 - Install .NET Core SDK. https://docs.microsoft.com/ja-jp/dotnet/core/install/linux-package-manager-ubuntu-1804
@@ -158,11 +178,7 @@ dotnet run
 ### Older Ubuntu
 Refer to the [Dockerfile](https://github.com/shimat/opencvsharp/blob/master/docker/google-appengine-ubuntu.16.04-x64/Dockerfile) and [Wiki pages](https://github.com/shimat/opencvsharp/wiki).
 
-## License
-Licensed under the [BSD 3-Clause License](https://github.com/shimat/opencvsharp/blob/master/LICENSE).
-
 ## Donations
-
 If you find the OpenCvSharp library useful and would like to show your gratitude by donating, here are some donation options. Thank you.
 
 https://github.com/sponsors/shimat
