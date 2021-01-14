@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using OpenCvSharp.Util;
+using OpenCvSharp.Internal;
+using OpenCvSharp.Internal.Util;
+
 // ReSharper disable UnusedMember.Local
 
 namespace OpenCvSharp
@@ -545,6 +547,21 @@ namespace OpenCvSharp
                 image = img;
                 NativeMethods.HandleException(
                     NativeMethods.highgui_imshow(name, img.CvPtr));
+                GC.KeepAlive(img);
+            }
+        }
+
+        /// <summary>
+        /// Shows the image in this window
+        /// </summary>
+        /// <param name="img">Image to be shown. </param>
+        public void ShowImage(UMat? img)
+        {
+            if (img != null)
+            {
+                //image = img;
+                NativeMethods.HandleException(
+                    NativeMethods.highgui_imshow_umat(name, img.CvPtr));
                 GC.KeepAlive(img);
             }
         }

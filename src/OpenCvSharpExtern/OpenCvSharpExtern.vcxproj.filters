@@ -91,6 +91,12 @@
     <ClCompile Include="quality.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dnn_superres.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="line_descriptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.h">
@@ -130,9 +136,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include_opencv.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="std_vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="superres.h">
@@ -297,9 +300,6 @@
     <ClInclude Include="tracking.h">
       <Filter>Header Files\tracking</Filter>
     </ClInclude>
-    <ClInclude Include="tracking_MultiTracker.h">
-      <Filter>Header Files\tracking</Filter>
-    </ClInclude>
     <ClInclude Include="core_FileNode.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
@@ -344,6 +344,23 @@
     </ClInclude>
     <ClInclude Include="tracking_UnscentedKalmanFilter.h">
       <Filter>Header Files\tracking</Filter>
+    </ClInclude>
+    <ClInclude Include="dnn_superres.h">
+      <Filter>Header Files\dnn_suprerres</Filter>
+    </ClInclude>
+    <ClInclude Include="line_descriptor.h">
+      <Filter>Header Files\line_descriptor</Filter>
+    </ClInclude>
+    <ClInclude Include="std_vector.h">
+      <Filter>Header Files\stdvector</Filter>
+    </ClInclude>
+    <ClInclude Include="std_vector_nesting.h">
+      <Filter>Header Files\stdvector</Filter>
+    </ClInclude>
+    <ClInclude Include="std_vector_primitive.h">
+      <Filter>Header Files\stdvector</Filter>
+    <ClInclude Include="core_UMat.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -411,6 +428,15 @@
     </Filter>
     <Filter Include="Header Files\text">
       <UniqueIdentifier>{94192d8f-b2fa-46be-ba1c-0fcd09bf1393}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dnn_suprerres">
+      <UniqueIdentifier>{267ed99d-14d6-4dff-8df8-c9a03bd32a39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\line_descriptor">
+      <UniqueIdentifier>{6b664b6f-45fc-4431-b4af-432dcafd6bac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\stdvector">
+      <UniqueIdentifier>{0285392d-ebbf-4c2b-8e47-9b08e444eaf5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

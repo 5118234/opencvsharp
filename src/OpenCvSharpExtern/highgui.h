@@ -1,5 +1,4 @@
-#ifndef _CPP_HIGHGUI_H_
-#define _CPP_HIGHGUI_H_
+#pragma once
 
 // ReSharper disable IdentifierTypo
 // ReSharper disable CppInconsistentNaming
@@ -54,6 +53,13 @@ CVAPI(ExceptionStatus) highgui_imshow(const char *winname, cv::Mat *mat)
 {
     BEGIN_WRAP
     cv::imshow(winname, *mat);
+    END_WRAP
+}
+
+CVAPI(ExceptionStatus) highgui_imshow_umat(const char* winname, cv::UMat* mat)
+{
+    BEGIN_WRAP
+        cv::imshow(winname, *mat);
     END_WRAP
 }
 
@@ -186,6 +192,4 @@ CVAPI(ExceptionStatus) highgui_initContainer(::Windows::UI::Xaml::Controls::Pane
     cv::winrt_initContainer(panel);
     END_WRAP
 }
-#endif
-
 #endif

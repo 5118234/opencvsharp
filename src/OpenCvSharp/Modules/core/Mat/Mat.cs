@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using OpenCvSharp.Util;
+using OpenCvSharp.Internal;
 
 namespace OpenCvSharp
 {
@@ -1688,6 +1688,15 @@ namespace OpenCvSharp
 
         #endregion
         
+
+        public UMat GetUMat(AccessFlag accessFlag, UMatUsageFlags usageFlags)
+        {
+            ThrowIfDisposed();
+            NativeMethods.HandleException(
+                NativeMethods.core_Mat_getUMat(ptr, (int)accessFlag, (int)usageFlags, out var matPtr));
+            return new UMat(matPtr);
+        }
+
         /// <summary>
         /// Creates a matrix header for the specified matrix column.
         /// </summary>
@@ -3748,6 +3757,9 @@ namespace OpenCvSharp
         /// <returns></returns>
         public override string ToString()
         {
+            if (IsDisposed)
+                return "Mat [disposed]";
+
             return "Mat [ " +
                    Rows + "*" + Cols + "*" + Type().ToString() +
                    ", IsContinuous=" + IsContinuous() + ", IsSubmatrix=" + IsSubmatrix() +
@@ -3766,7 +3778,7 @@ namespace OpenCvSharp
         /// </summary>
         /// <param name="format"></param>
         /// <returns></returns>
-        public string? Dump(FormatType format = FormatType.Default)
+        public string Dump(FormatType format = FormatType.Default)
         {
             ThrowIfDisposed();
             return Cv2.Format(this, format);
@@ -3790,6 +3802,7 @@ namespace OpenCvSharp
 #endif
         public Mat EmptyClone()
         {
+            ThrowIfDisposed();
             return new Mat(Size(), Type());
         }
 
